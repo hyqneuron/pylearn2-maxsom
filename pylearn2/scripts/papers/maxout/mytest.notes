@@ -1,0 +1,26 @@
+In this series of tests, SOMaxout is attempted
+
+mytest
+    Simple SOMaxout. 
+    
+    copy matrix fixed, no norm standardization
+    copy matrix = 0.5 * np.eye(5) + 0.5 * np.ones([5,5])
+
+mytest2
+    This test adds within-group norm standardization
+
+    difference from mytest: norm standardization added, performs both
+    mean-standardization and max-norm clipping
+    copy matrix still the same as mytest
+
+mytest3
+    This test tests the effect of norm matrix = np.ones([5,5])
+    This is to make sure that units within the same group do become the same,
+    showing correctness of the code   
+
+mytest4
+    This test uses a static copy matrix, but does take distance into
+    consideration when computing copying constant
+
+    Difference from mytest2:
+    copy matrix = [1 .8 .5 .2 0]
