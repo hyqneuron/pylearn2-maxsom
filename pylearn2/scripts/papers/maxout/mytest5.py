@@ -138,7 +138,7 @@ class SOMaxout(Maxout):
     def __init__(self, *args, **kwargs):
         super(SOMaxout, self).__init__(*args, **kwargs)
 
-        print "initiating mytest4"
+        print "initiating mytest5"
         assert self.num_pieces==5, "This test only support 5-piece per group"
         matrix_value = np.asarray([[ 1. ,  0.8,  0.5,  0.2,  0. ],
                                    [ 0.8,  1. ,  0.8,  0.5,  0.2],

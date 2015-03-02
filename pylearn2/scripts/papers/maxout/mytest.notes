@@ -24,3 +24,7 @@ mytest4
 
     Difference from mytest2:
     copy matrix = [1 .8 .5 .2 0]
+
+mytest5
+    This test is based on test4, and sets the second layer to use SOMaxout as
+    well. (only changes mytest5.yaml)
