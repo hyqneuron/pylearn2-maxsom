@@ -5,6 +5,7 @@ Visualizes the weight matrices of a pickled model
 import argparse
 
 from pylearn2.gui import get_weights_report
+from g2c import *
 
 
 def show_weights(model_path, rescale="individual",

@@ -5,6 +5,7 @@
     WRITEME
 """
 from __future__ import print_function
+from g2c import *
 
 __authors__ = "Ian Goodfellow"
 __copyright__ = "Copyright 2010-2012, Universite de Montreal"

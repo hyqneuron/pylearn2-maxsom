@@ -328,6 +328,7 @@ class SGD(TrainingAlgorithm):
 
         grads, updates = self.cost.get_gradients(model, nested_args,
                                                  ** fixed_var_descr.fixed_vars)
+        """ Beginning of large chunk of validative work"""
         if not isinstance(grads, OrderedDict):
             raise TypeError(str(type(self.cost)) + ".get_gradients returned " +
                             "something with" + str(type(grads)) + "as its " +
@@ -359,6 +360,12 @@ class SGD(TrainingAlgorithm):
                 param_name = 'anon_param'
             lr = learning_rate.get_value() * lr_scalers.get(param,1.)
             log.info('\t' + param_name + ': ' + str(lr))
+        """ End of large chunk of validative work"""
+
+        # do per-layer modify_grads
+        for layer in self.model.layers:
+            if hasattr(layer, "modify_grads"):
+                layer.modify_grads(grads);
 
         if self.learning_rule:
             updates.update(self.learning_rule.get_updates(

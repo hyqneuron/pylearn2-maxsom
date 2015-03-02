@@ -22,6 +22,8 @@ import gc
 import numpy as np
 import sys
 
+
+from g2c import *
 from theano.compat.six.moves import input, xrange
 from pylearn2.utils import serial
 from theano.printing import _TagGenerator
