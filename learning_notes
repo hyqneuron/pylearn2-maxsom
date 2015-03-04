@@ -2,28 +2,24 @@
 
 What I intend to do:
   * Find out how convolution is done
-  * Find out how max pooling is performed
-  * Figure out a way for the max unit's dE/dw to be copied to other units in the
-    group
-
-Find out how RBM training provides its own sampling-based gradient
+  * Find out how max pooling is performed: by Maxout's fprop
 
 
 Structure of overall program
 
 train.py builds Train class using serial.load(model_file_path)
-    Train.main_loop()
-        self.setup() # setup algorithm.setup(), monitor, and extensions
-        self.algorithm.train()
-            algorithm.sgd_update() # sgd_update created by algorithm.setup()
-                in the default implementation of sgd_update(),
-                cost is computed using algorithm.cost.expr()
-                grad, updates = algorithm.cost.get_gradient(), default is just T.grad(cost,params)
-                updates then updated using
-                    algorithm.learning_rule.get_updates OR standard param-LR*grad
-                    model.modify_updates()
-                        calls subclass's _modify_updates()
-                        MLP._modify_updates() calls each layer's modify_updates()
+Train.main_loop()
+    self.setup() # setup algorithm.setup(), monitor, and extensions
+    self.algorithm.train()
+        algorithm.sgd_update() # sgd_update created by algorithm.setup()
+            in the default implementation of sgd_update(),
+            cost is computed using algorithm.cost.expr()
+            grad, updates = algorithm.cost.get_gradient(), default is just T.grad(cost,params)
+            updates then updated using
+                algorithm.learning_rule.get_updates OR standard param-LR*grad
+                model.modify_updates()
+                    calls subclass's _modify_updates()
+                    MLP._modify_updates() calls each layer's modify_updates()
                     
         check continue_learning using algorithm.continue_learning() and extension_continue
     save things and exit
@@ -51,8 +47,6 @@ The default mnist_pi.yaml
 TODOs:
 Now that I have found out how to manipulate the updates, the next steps to
 perform:
-1. Change copy matrix to ones only to validate correctness
-2. Add norm standardization
-3. Add copying matrix annealing
+1. Add copying matrix annealing
 
 
