@@ -2,6 +2,7 @@
 *~
 *.swp
 *.bak
+*.res
 
 #Don't track the binary data files:
 *.npy

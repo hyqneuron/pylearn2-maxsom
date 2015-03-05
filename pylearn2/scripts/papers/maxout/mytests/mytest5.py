@@ -159,6 +159,8 @@ class SOMaxout(Maxout):
         [1, 0.8]
         [0.8, 1]
         """
+        print "Gradient left untouched"
+        return
         W, = self.transformer.get_params()
         grad_old = grads[W]
         npi = self.num_pieces
@@ -176,6 +178,8 @@ class SOMaxout(Maxout):
         At each update, make sure all units in the same somaxout group has equal
         norm
         """
+        print "Norm Standardization cancelled"
+        return
         W, = self.transformer.get_params()
         update_old = updates[W]
         npi = self.num_pieces
