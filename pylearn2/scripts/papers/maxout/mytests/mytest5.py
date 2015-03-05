@@ -145,10 +145,16 @@ class SOMaxout(Maxout):
                                    [ 0.5,  0.8,  1. ,  0.8,  0.5],
                                    [ 0.2,  0.5,  0.8,  1. ,  0.8],
                                    [ 0. ,  0.2,  0.5,  0.8,  1. ]])
-        self.SOM_copy_matrix = sharedX(matrix_value)
+        self.SOM_copy_matrix = sharedX(matrix_value, 'SOM_cmatrix_'+self.layer_name)
         self.standardize_norm = True
         print "SOM_copy_matrix established for layer "+self.layer_name
         print matrix_value
+
+    def print_SOM_copy_matrix(self):
+        if not hasattr(self, "SOM_copy_matrix"):
+            print self.layer_name+" has no some cmatrix"
+        else:
+            print self.SOM_copy_matrix.get_value()
 
     def modify_grads(self, grads):
         """

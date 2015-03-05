@@ -28,3 +28,6 @@ mytest4
 mytest5
     This test is based on test4, and sets the second layer to use SOMaxout as
     well. (only changes mytest5.yaml)
+
+    continued: removed the SOM component completely. Only reached 0.00999999
+    test error.

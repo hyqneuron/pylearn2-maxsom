@@ -1,8 +1,9 @@
 
 
-What I intend to do:
-  * Find out how convolution is done
-  * Find out how max pooling is performed: by Maxout's fprop
+TODOs:
+  * Fix BLAS problem
+  * Add SOM annealing
+  * Find out how convolution is done and how to add SOM to conv
 
 
 Structure of overall program
@@ -10,18 +11,21 @@ Structure of overall program
 train.py builds Train class using serial.load(model_file_path)
 Train.main_loop()
     self.setup() # setup algorithm.setup(), monitor, and extensions
-    self.algorithm.train()
-        algorithm.sgd_update() # sgd_update created by algorithm.setup()
-            in the default implementation of sgd_update(),
-            cost is computed using algorithm.cost.expr()
-            grad, updates = algorithm.cost.get_gradient(), default is just T.grad(cost,params)
-            updates then updated using
-                algorithm.learning_rule.get_updates OR standard param-LR*grad
-                model.modify_updates()
-                    calls subclass's _modify_updates()
-                    MLP._modify_updates() calls each layer's modify_updates()
-                    
-        check continue_learning using algorithm.continue_learning() and extension_continue
+    run_callbacks_and_monitoring() # call self.model.monitor() and extension.on_monitor
+    for each epoch:
+        self.algorithm.train()
+            for each batch:
+                algorithm.sgd_update() # sgd_update created by algorithm.setup()
+                    in the default implementation of sgd_update(),
+                    cost is computed using algorithm.cost.expr()
+                    grad, updates = algorithm.cost.get_gradient(), default is just T.grad(cost,params)
+                    updates then updated using algorithm.learning_rule.get_updates OR standard param-LR*grad
+                    model.modify_updates()
+                        MLP._modify_updates() calls each layer's modify_updates()
+                monitor.report_batch & update_callbacks
+            parameter infinity checks
+        run_callbacks_and_monitoring() and 
+        self.algorithm.continue_learning()
     save things and exit
 
 Question: does dropout drop each Maxout group, or drop all units?
@@ -42,11 +46,4 @@ The default mnist_pi.yaml
         its expr() calls model.dropout_fprop
         model.dropout_fprop defined in MLP
         MLP.dropout_fprop calls layer.fprop
-
-
-TODOs:
-Now that I have found out how to manipulate the updates, the next steps to
-perform:
-1. Add copying matrix annealing
-
 
