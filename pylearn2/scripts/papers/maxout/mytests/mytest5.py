@@ -37,7 +37,7 @@ from pylearn2.utils.rng import make_np_rng
 log = logging.getLogger(__name__)
 
 class TestAlgo(SGD):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """
         apart from the ordinary arguments of SGD, we accept an
         stage_2: indicate if we are in the "continued" stage of training. If we
@@ -47,7 +47,7 @@ class TestAlgo(SGD):
         if 'stage_2' in kwargs:
             self.stage_2 = kwargs['stage_2']
             kwargs.pop('stage_2',None)
-        super(SOMaxout, self).__init__(*args, **kwargs)
+        super(TestAlgo, self).__init__(**kwargs)
         
 
     def setup(self, model, dataset):
