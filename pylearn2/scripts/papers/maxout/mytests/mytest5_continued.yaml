@@ -7,6 +7,7 @@
         name: "monitor_stage_0"
     },
     algorithm: !obj:mytest5.TestAlgo {
+        stage_2: true,
         batch_size: 100,
         learning_rate: 0.0615082606673,
         learning_rule: !obj:pylearn2.training_algorithms.learning_rule.Momentum {

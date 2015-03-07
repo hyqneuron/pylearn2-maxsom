@@ -1,9 +1,13 @@
 
 
 TODOs:
-  * Fix BLAS problem
-  * Add SOM annealing
   * Find out how convolution is done and how to add SOM to conv
+    - Currently, MaxoutConvC01B's fprop still uses T.Maximum at the end to do
+      cross-channel max pooling, which means we just need to do something similar,
+      and avoid messing with cuda_convnet's native code.
+  * Add SOM annealing
+  * Create SOMAX-autoencoder
+  * Add Temporal cost to SOMAX-autoencoder
 
 
 Structure of overall program
@@ -19,7 +23,6 @@ Train.main_loop()
                     in the default implementation of sgd_update(),
                     cost is computed using algorithm.cost.expr()
                     grad, updates = algorithm.cost.get_gradient(), default is just T.grad(cost,params)
-                    updates then updated using algorithm.learning_rule.get_updates OR standard param-LR*grad
                     model.modify_updates()
                         MLP._modify_updates() calls each layer's modify_updates()
                 monitor.report_batch & update_callbacks
@@ -47,3 +50,11 @@ The default mnist_pi.yaml
         model.dropout_fprop defined in MLP
         MLP.dropout_fprop calls layer.fprop
 
+Question: How does MaxoutConvC01B do convolution and cross-channel max pooling?
+Answer: MaxoutConvC01B.set_input_space() sets up the transformer by calling 
+setup_detector_layer_c01b, which creates a Conv2D transformer.
+Inside MaxoutConvC01B, fprop uses transformer (conv2d_c01b.Conv2D) to compute
+z=x*filter, then performs spatial max-pooling and cross-channel max-pooling
+using max_pool_c01b and T.maximum respectively
+
+We just have to figure out a way to modify the gradient computation

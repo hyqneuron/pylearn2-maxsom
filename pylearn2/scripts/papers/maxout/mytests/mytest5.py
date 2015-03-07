@@ -37,6 +37,23 @@ from pylearn2.utils.rng import make_np_rng
 log = logging.getLogger(__name__)
 
 class TestAlgo(SGD):
+    def __init__(self, *args, **kwargs):
+        """
+        apart from the ordinary arguments of SGD, we accept an
+        stage_2: indicate if we are in the "continued" stage of training. If we
+        are, modify_grads and modify_updates will choose not to set up SOM.
+        """
+        self.stage_2 = False
+        if 'stage_2' in kwargs:
+            self.stage_2 = kwargs['stage_2']
+            kwargs.pop('stage_2',None)
+        super(SOMaxout, self).__init__(*args, **kwargs)
+        
+
+    def setup(self, model, dataset):
+        for layer in model.layers:
+            layer.stage_2=self.stage_2
+        return super(TestAlgo, self).setup(model, dataset)
     # this train function mainly to hack into weight tracking
     def train(self, dataset):
         """
@@ -165,8 +182,9 @@ class SOMaxout(Maxout):
         [1, 0.8]
         [0.8, 1]
         """
-        print "Gradient left untouched"
-        return
+        if self.stage_2:
+            print "Gradient left untouched"
+            return
         W, = self.transformer.get_params()
         grad_old = grads[W]
         npi = self.num_pieces
@@ -184,8 +202,9 @@ class SOMaxout(Maxout):
         At each update, make sure all units in the same somaxout group has equal
         norm
         """
-        print "Norm Standardization cancelled"
-        return
+        if self.stage_2:
+            print "Norm Standardization cancelled"
+            return
         W, = self.transformer.get_params()
         update_old = updates[W]
         npi = self.num_pieces
