@@ -1,0 +1,3 @@
+This directory contains attempts to use ReLU's piece-wise linear surface to do
+proper credit assignment, and find out which pixels make the maximal
+contribution to the label.
