@@ -52,6 +52,10 @@ class TestAlgo(SGD):
     def setup(self, model, dataset):
         for layer in model.layers:
             layer.stage_2=self.stage_2
+        # drop the channels we don't care about
+        for k in dict(model.monitor.channels):
+            if k.find('max')+k.find('min')+k.find('mean')!=-3:
+                model.monitor.channels.pop(k)
         return super(TestAlgo, self).setup(model, dataset)
     # this train function mainly to hack into weight tracking
     def train(self, dataset):
@@ -69,9 +73,13 @@ class TestAlgo(SGD):
             rng = None
 
         # update layers' epoch count and new SOM_copy_matrix
+        if not hasattr(self.model, "total_epoch"):
+            self.model.total_epoch = 0
+        else:
+            self.model.total_epoch += 1
         for layer in self.model.layers:
             if isinstance(layer, SOMaxout):
-                layer.set_epoch(self.model.monitor.get_epochs_seen())
+                layer.set_epoch(self.model.total_epoch)
                 layer.set_SOM_copy_matrix(layer.compute_SOM_copy_matrix())
 
         data_specs = self.cost.get_data_specs(self.model)
@@ -136,13 +144,14 @@ class SOMaxout(Maxout):
                 init_SOM_var=1.5,
                 final_SOM_var=1.5,
                 saturate_at_epoch=10**8,
+                standardize_norm = False,
                 **kwargs):
         super(SOMaxout, self).__init__(**kwargs)
         self.init_SOM_var = init_SOM_var
         self.final_SOM_var = final_SOM_var
         self.saturate_at_epoch = saturate_at_epoch
         self.SOM_var = init_SOM_var
-        self.standardize_norm = True
+        self.standardize_norm = standardize_norm
         self.set_epoch(0)
 
         print "Initializing mytest6."+self.layer_name
@@ -156,6 +165,8 @@ class SOMaxout(Maxout):
     def compute_SOM_copy_matrix(self):
         self.SOM_var = (self.init_SOM_var + (self.final_SOM_var -
             self.init_SOM_var)*(float(self.epoch)/self.saturate_at_epoch))
+        if self.epoch>=self.saturate_at_epoch:
+            self.SOM_var = self.final_SOM_var
         matrix_value = np.zeros([self.num_pieces, self.num_pieces])
         for i in range(self.num_pieces):
             for j in range(self.num_pieces):
@@ -184,9 +195,6 @@ class SOMaxout(Maxout):
         [1, 0.8]
         [0.8, 1]
         """
-        if self.stage_2:
-            print "Gradient left untouched"
-            return
         W, = self.transformer.get_params()
         grad_old = grads[W]
         npi = self.num_pieces
@@ -204,18 +212,17 @@ class SOMaxout(Maxout):
         At each update, make sure all units in the same somaxout group has equal
         norm
         """
-        if self.stage_2:
-            print "Norm Standardization cancelled"
+        if not self.standardize_norm:
+            print "Norm standardization for layer "+self.layer_name+" skipped"
             return
         W, = self.transformer.get_params()
         update_old = updates[W]
         npi = self.num_pieces
-        if self.standardize_norm:
-            norms = T.sqrt(T.sum(T.sqr(update_old), axis=0))
-            norm_mean = norms.reshape([self.num_units, self.num_pieces]).mean(axis=1)
-            norm_desired=T.repeat(norm_mean, npi)
-            if self.max_col_norm is not None:
-                norm_desired = T.clip(norm_desired, 0, self.max_col_norm)
-            updates[W] = update_old * norm_desired / norms 
-            print "Updates for layer "+self.layer_name+" modified with within-group norm standardization"
+        norms = T.sqrt(T.sum(T.sqr(update_old), axis=0))
+        norm_mean = norms.reshape([self.num_units, self.num_pieces]).mean(axis=1)
+        norm_desired=T.repeat(norm_mean, npi)
+        if self.max_col_norm is not None:
+            norm_desired = T.clip(norm_desired, 0, self.max_col_norm)
+        updates[W] = update_old * norm_desired / norms 
+        print "Updates for layer "+self.layer_name+" modified with within-group norm standardization"
 
