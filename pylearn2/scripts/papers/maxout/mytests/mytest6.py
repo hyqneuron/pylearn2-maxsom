@@ -70,8 +70,9 @@ class TestAlgo(SGD):
 
         # update layers' epoch count and new SOM_copy_matrix
         for layer in self.model.layers:
-            layer.set_epoch(self.model.monitor.get_epochs_seen())
-            layer.set_SOM_copy_matrix(layer.compute_SOM_copy_matrix())
+            if isinstance(layer, SOMaxout):
+                layer.set_epoch(self.model.monitor.get_epochs_seen())
+                layer.set_SOM_copy_matrix(layer.compute_SOM_copy_matrix())
 
         data_specs = self.cost.get_data_specs(self.model)
 
@@ -142,6 +143,7 @@ class SOMaxout(Maxout):
         self.saturate_at_epoch = saturate_at_epoch
         self.SOM_var = init_SOM_var
         self.standardize_norm = True
+        self.set_epoch(0)
 
         print "Initializing mytest6."+self.layer_name
         # compute and create SOM_cmatrix
@@ -160,7 +162,7 @@ class SOMaxout(Maxout):
                 matrix_value[i,j] = np.exp( - ((i-j)/self.SOM_var)**2 )
         return matrix_value
     def set_SOM_copy_matrix(self, matrix_value):
-        self.SOM_copy_matrix.set_value(matrix_value)
+        self.SOM_copy_matrix.set_value(np.float32(matrix_value))
         print "Layer "+self.layer_name+" has received new SOM_cmatrix:"
         self.print_SOM_copy_matrix()
         
