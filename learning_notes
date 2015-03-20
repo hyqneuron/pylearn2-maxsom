@@ -6,6 +6,11 @@ TODOs:
   * Create SOMAX-autoencoder
   * Add Temporal cost to SOMAX-autoencoder
 
+LocateReLU TODOs:
+  * Figure out how to pass in a single data sample for classification
+  * Figure out how to build a Theano function to compute input-contribution
+    - T.multiply (d_label/d_input, input)
+
 
 Structure of overall program
 
